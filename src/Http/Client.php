@@ -7,7 +7,7 @@ class Client
   /**
    * Location where the cookie will be stored.
    */
-  private $cookie = 'tmp/cookie';
+  private $cookie = 'tmp/cookie.txt';
 
   public function get($url)
   {
@@ -45,7 +45,7 @@ class Client
       CURLOPT_FOLLOWLOCATION => true,
       CURLOPT_RETURNTRANSFER => true
     ]);
-
+    if (!is_dir('tmp')) mkdir('tmp');
     $result = curl_exec($ch);
     curl_close($ch);
     return $result;

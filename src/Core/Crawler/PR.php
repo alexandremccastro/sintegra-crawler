@@ -31,6 +31,7 @@ class PR extends Spider
   public function loadCaptcha()
   {
     $captcha = $this->httpClient->get($this->captchaURL);
+    if (!is_dir('tmp')) mkdir('tmp');
     file_put_contents('tmp/captcha.jpeg', $captcha);
   }
 
