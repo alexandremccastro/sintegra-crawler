@@ -37,12 +37,28 @@ abstract class Spider
   protected $searchTrigger = [];
 
   /**
-   * The result retrieved from the page.
+   * Class that return the results.
+   */
+  protected $resultClassname = '';
+
+  /**
+   * Class that return the errors.
+   */
+  protected $errorClassname = '';
+
+  /**
+   * The content retrieved from the page.
+   */
+  protected $content = '';
+
+  /**
+   * The result that has been parsed.
    */
   protected $result = [];
 
 
-  public function __construct(Client $httpClient, $siteURL, $captchaURL, $captchaInput, $cnpjInput, $searchTrigger)
+  public function __construct(Client $httpClient, $siteURL, $captchaURL, $captchaInput, 
+                              $cnpjInput, $searchTrigger, $resultClassname, $errorClassname)
   {
     $this->httpClient = $httpClient;
     $this->siteURL = $siteURL;
@@ -50,24 +66,38 @@ abstract class Spider
     $this->captchaInput = $captchaInput;
     $this->cnpjInput = $cnpjInput;
     $this->searchTrigger = $searchTrigger;
+    $this->resultClassname = $resultClassname;
+    $this->errorClassname = $errorClassname;
   }
 
   public function prompt()
   {
-    $this->plugIn();
+    $this->generateCookie();
+    $this->getCaptcha();
+    $this->searchCnpj();
+    $this->getCompanyInfo();
+    $this->parseResult();
+  }
 
-    $params = [];
-
+  public function getCaptcha()
+  {
     if ($this->hasCaptcha()) {
       $this->loadCaptcha();
-      echo "\033[01;31mO captcha foi salvo em: tmp/captcha.jpeg\033[0m\n";
-      $params[$this->captchaInput] = readline('Digite o texto do captcha: ');
+      echo "O captcha foi salvo em: \033[42mtmp/captcha.jpeg\033[0m" . PHP_EOL;
+      $this->params[$this->captchaInput] = readline('Digite o texto do captcha: ');
     }
+  }
 
-    $params[$this->cnpjInput] = readline('Digite o CNPJ da empresa: ');
-    $params = array_merge($params, $this->searchTrigger);
-    $content = $this->postInfo($params);
-    $this->result = $this->parseResult($content, 'form_conteudo');
+  public function searchCnpj()
+  {
+    $input = readline('Digite o CNPJ da empresa: ');
+    $filteredCnpj = filter_var($input, FILTER_SANITIZE_NUMBER_INT);
+    $this->params[$this->cnpjInput] = $filteredCnpj;
+  }
+
+  protected function getPostInfo()
+  {
+    return array_merge($this->params, $this->searchTrigger);
   }
 
   public function getResult()
@@ -75,10 +105,24 @@ abstract class Spider
     return $this->result;
   }
 
-  public abstract function plugIn();
+  public function innerHTML(\DOMElement $element)
+  {
+    $doc = $element->ownerDocument;
+
+    $html = '';
+
+    foreach ($element->childNodes as $node) {
+        $html .= $doc->saveHTML($node);
+    }
+
+    return trim($html);
+  }
+
+  public abstract function generateCookie();
   public abstract function hasCaptcha();
   public abstract function loadCaptcha();
-  public abstract function postInfo($params = []);
-  public abstract function parseResult($content, $classname);
+  public abstract function getCompanyInfo();
+  public abstract function parseResult();
+  public abstract function displayErrors($errors);
   public abstract function parseData($data);
 }

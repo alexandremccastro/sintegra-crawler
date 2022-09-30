@@ -15,10 +15,13 @@ class PR extends Spider
       'http://www.sintegra.fazenda.pr.gov.br/sintegra/captcha?1',
       'data[Sintegra1][CodImage]',
       'data[Sintegra1][Cnpj]',
-      ['empresa' => 'Consultar Empresa']);
+      ['empresa' => 'Consultar Empresa'],
+      'form_conteudo',
+      'erro_msg_custom'
+    );
   }
 
-  public function plugIn()
+  public function generateCookie()
   {
     $this->httpClient->get($this->siteURL);
   }
@@ -35,19 +38,27 @@ class PR extends Spider
     file_put_contents('tmp/captcha.jpeg', $captcha);
   }
 
-  public function postInfo($params = [])
+  public function getCompanyInfo()
   {
+    $params = $this->getPostInfo();
     $result = $this->httpClient->post($this->siteURL, $params);
-    return utf8_encode($result);
+    $this->content = html_entity_decode($result);
   }
 
-  public function parseResult($content, $classname)
+  public function parseResult()
   {
     $dom = new \DOMDocument('1.0', 'UTF-8');
-    @$dom->loadHTML($content);
+    @$dom->loadHTML($this->content);
     $finder = new \DOMXPath($dom);
-    $nodes = $finder->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' $classname ')]");
-    return $this->parseData($nodes);
+    $errors = $finder->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' $this->errorClassname ')]");
+
+    if (count($errors)) {
+      $this->displayErrors($errors);
+      return [];
+    }
+
+    $infos = $finder->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' $this->resultClassname ')]");
+    $this->result = $this->parseData($infos);
   }
 
   public function parseData($nodes)
@@ -80,16 +91,11 @@ class PR extends Spider
     ];
   }
 
-  public function innerHTML(\DOMElement $element)
+  public function displayErrors($errors)
   {
-    $doc = $element->ownerDocument;
-
-    $html = '';
-
-    foreach ($element->childNodes as $node) {
-        $html .= $doc->saveHTML($node);
+    foreach ($errors as $error) {
+      $content = ucfirst(\mb_strtolower($this->innerHTML($error)));
+      echo "\033[41m$content\33[0m" . PHP_EOL;
     }
-
-    return trim($html);
   }
 }
