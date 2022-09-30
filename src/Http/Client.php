@@ -76,6 +76,13 @@ class Client
     return $result;
   }
 
+  public function clearCookie()
+  {
+    if ($this->useCookies) {
+      $filepath = $this->getCookiePath();
+      if (is_file($filepath)) unlink($filepath);
+    }
+  }
 
   public function getCookiePath()
   {
