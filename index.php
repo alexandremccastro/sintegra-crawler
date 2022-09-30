@@ -7,4 +7,4 @@ use Core\Crawler\PR as SintegraPR;
 $crawler = new SintegraPR();
 
 $crawler->prompt();
-var_dump($crawler->getResults());
+print_r($crawler->getResult());

@@ -37,7 +37,7 @@ abstract class Spider
   protected $searchTrigger = [];
 
   /**
-   * The results retrieved from the page.
+   * The result retrieved from the page.
    */
   protected $results = [];
 
@@ -67,17 +67,18 @@ abstract class Spider
     $params[$this->cnpjInput] = readline('Digite o CNPJ da empresa: ');
     $params = array_merge($params, $this->searchTrigger);
     $content = $this->postInfo($params);
-    $this->results = $this->parseResults($content);
+    $this->results = $this->parseResult($content, 'form_conteudo');
   }
 
-  public function getResults()
+  public function getResult()
   {
-    return $this->results;
+    return $this->result;
   }
 
   public abstract function plugIn();
   public abstract function hasCaptcha();
   public abstract function loadCaptcha();
   public abstract function postInfo($params = []);
-  public abstract function parseResults($content);
+  public abstract function parseResult($content, $classname);
+  public abstract function parseData($data);
 }
