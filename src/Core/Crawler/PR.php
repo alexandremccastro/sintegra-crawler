@@ -10,7 +10,7 @@ class PR extends Spider
   public function __construct()
   {
     parent::__construct(
-      new HttpClient(),
+      new HttpClient(true, 'sintegra.pr', 'tmp'),
       'http://www.sintegra.fazenda.pr.gov.br/sintegra/',
       'http://www.sintegra.fazenda.pr.gov.br/sintegra/captcha?1',
       'data[Sintegra1][CodImage]',
@@ -52,8 +52,7 @@ class PR extends Spider
 
   public function parseData($nodes)
   {
-    $mainActivity = $this->innerHTML($nodes[12]);
-    [$code, $description] = explode('-', $mainActivity);
+    [$code, $description] = explode('-', $this->innerHTML($nodes[12]));
     [$currentSituation, , , $situationDate] = explode(' ', $this->innerHTML($nodes[15]));
     
     return [

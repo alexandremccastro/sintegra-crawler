@@ -67,7 +67,7 @@ abstract class Spider
     $params[$this->cnpjInput] = readline('Digite o CNPJ da empresa: ');
     $params = array_merge($params, $this->searchTrigger);
     $content = $this->postInfo($params);
-    $this->results = $this->parseResult($content, 'form_conteudo');
+    $this->result = $this->parseResult($content, 'form_conteudo');
   }
 
   public function getResult()

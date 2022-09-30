@@ -7,7 +7,27 @@ class Client
   /**
    * Location where the cookie will be stored.
    */
-  private $cookie = 'tmp/cookie.txt';
+  private $useCookies;
+
+
+  /**
+   * Name use to save cookie file.
+   */
+  private $cookieName;
+
+
+  /**
+   * Location where the cookie will be stored.
+   */
+  private $cookieLocation;
+
+
+  public function __construct($useCookies = false, $cookieName = 'cookie', $cookieLocation = 'tmp')
+  {
+    $this->useCookies = $useCookies;
+    $this->cookieName = $cookieName;
+    $this->cookieLocation = $cookieLocation;
+  }
 
   public function get($url)
   {
@@ -36,11 +56,16 @@ class Client
 
   private function send($ch)
   {
+    if ($this->useCookies) {
+      curl_setopt_array($ch, [
+        CURLOPT_COOKIEFILE => $this->getCookiePath(),
+        CURLOPT_COOKIEJAR => $this->getCookiePath(),
+      ]);
+    }
+
     curl_setopt_array($ch, [
       CURLOPT_SSL_VERIFYPEER => false,
       CURLOPT_SSL_VERIFYHOST => false,
-      CURLOPT_COOKIEFILE => $this->cookie,
-      CURLOPT_COOKIEJAR => $this->cookie,
       CURLOPT_TCP_KEEPALIVE => true,
       CURLOPT_FOLLOWLOCATION => true,
       CURLOPT_RETURNTRANSFER => true
@@ -49,5 +74,15 @@ class Client
     $result = curl_exec($ch);
     curl_close($ch);
     return $result;
+  }
+
+
+  public function getCookiePath()
+  {
+    if ($this->useCookies) {
+      return join('/', [$this->cookieLocation, $this->cookieName]);
+    }
+
+    return null;
   }
 }
