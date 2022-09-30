@@ -43,8 +43,8 @@ class PR extends Spider
 
   public function parseResult($content, $classname)
   {
-    $dom = new \DOMDocument('1.0','UTF-8');
-    $dom->loadHTML($content);
+    $dom = new \DOMDocument('1.0', 'UTF-8');
+    @$dom->loadHTML($content);
     $finder = new \DOMXPath($dom);
     $nodes = $finder->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' $classname ')]");
     return $this->parseData($nodes);

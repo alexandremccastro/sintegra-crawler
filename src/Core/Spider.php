@@ -39,7 +39,7 @@ abstract class Spider
   /**
    * The result retrieved from the page.
    */
-  protected $results = [];
+  protected $result = [];
 
 
   public function __construct(Client $httpClient, $siteURL, $captchaURL, $captchaInput, $cnpjInput, $searchTrigger)
