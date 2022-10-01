@@ -1,8 +1,8 @@
 <?php
 
-namespace Core;
+namespace App\Core;
 
-use Http\Client;
+use App\Http\Client;
 
 abstract class Spider
 {

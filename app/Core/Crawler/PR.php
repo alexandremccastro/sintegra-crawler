@@ -1,9 +1,9 @@
 <?php
 
-namespace Core\Crawler;
+namespace App\Core\Crawler;
 
-use Http\Client as HttpClient;
-use Core\Spider;
+use App\Http\Client as HttpClient;
+use App\Core\Spider;
 
 class PR extends Spider
 {

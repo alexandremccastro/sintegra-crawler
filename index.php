@@ -1,8 +1,8 @@
 <?php
 
-include_once 'autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-use Core\Crawler\PR as SintegraPR;
+use App\Core\Crawler\PR as SintegraPR;
 
 $crawler = new SintegraPR();
 
